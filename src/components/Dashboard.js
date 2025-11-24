@@ -8,7 +8,8 @@ import RaceControl from './RaceControl';
 import NoSessionModal from './NoSessionModal';
 import SessionFilter from './SessionFilter';
 import SkeletonLoader from './SkeletonLoader';
-import { getFullRaceData, checkActiveSession, getUpcomingSessions } from '../services/api';
+import DriverComparison from './DriverComparison';
+import { getFullRaceData, checkActiveSession, getUpcomingSessions, getAllLaps } from '../services/api';
 
 // Estilos globais para scroll da tabela
 const tableScrollStyles = `
@@ -80,6 +81,8 @@ const Dashboard = () => {
     pit: true,
     topSpeed: true
   });
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [allLapsData, setAllLapsData] = useState([]);
 
   const fetchData = async (sessionKey = null, forceLoad = false) => {
     try {
@@ -162,6 +165,32 @@ const Dashboard = () => {
     if (newForceLoad) {
       setLoading(true);
       fetchData(selectedSessionKey, true);
+    }
+  };
+
+  const loadAllLapsForComparison = async () => {
+    if (!selectedSessionKey && !session?.session_key) {
+      console.warn('Nenhuma sessão disponível para carregar voltas');
+      return;
+    }
+    
+    const sessionKey = selectedSessionKey || session?.session_key;
+    try {
+      const laps = await getAllLaps(sessionKey);
+      setAllLapsData(laps);
+    } catch (error) {
+      console.error('Erro ao carregar voltas para comparação:', error);
+      setAllLapsData([]);
+    }
+  };
+
+  const toggleComparisonMode = () => {
+    const newMode = !comparisonMode;
+    setComparisonMode(newMode);
+    
+    // Se estiver ativando o modo comparação, carregar todas as voltas
+    if (newMode && allLapsData.length === 0) {
+      loadAllLapsForComparison();
     }
   };
 
@@ -731,6 +760,49 @@ const Dashboard = () => {
         currentSession={session}
       />
 
+      {/* Toggle para Modo Comparação */}
+      <div style={{
+        backgroundColor: comparisonMode ? '#3b82f6' : '#15151f',
+        color: '#ffffff',
+        padding: '15px 20px',
+        borderRadius: '8px',
+        marginBottom: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        border: comparisonMode ? '2px solid #2563eb' : '2px solid #2a2a3e'
+      }}>
+        <div>
+          <div style={{fontWeight: 'bold', marginBottom: '5px', fontSize: '16px'}}>
+            {comparisonMode ? '⚔️ Modo Comparação ATIVO' : '📊 Modo Dashboard Padrão'}
+          </div>
+          <div style={{fontSize: '13px', opacity: 0.9, lineHeight: '1.5'}}>
+            {comparisonMode 
+              ? 'Compare estatísticas detalhadas de dois pilotos lado a lado'
+              : 'Visualize classificação completa e informações da corrida'
+            }
+          </div>
+        </div>
+        <button
+          onClick={toggleComparisonMode}
+          style={{
+            backgroundColor: comparisonMode ? '#dc2626' : '#3b82f6',
+            color: '#ffffff',
+            border: 'none',
+            padding: '12px 24px',
+            borderRadius: '6px',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease'
+          }}
+          onMouseOver={(e) => e.target.style.opacity = '0.9'}
+          onMouseOut={(e) => e.target.style.opacity = '1'}
+        >
+          {comparisonMode ? '📊 Ver Dashboard' : '⚔️ Comparar Pilotos'}
+        </button>
+      </div>
+
       {/* Indicador de Status dos Dados */}
       <div style={{
         backgroundColor: '#15151f',
@@ -809,14 +881,23 @@ const Dashboard = () => {
         <RaceInfo session={session} />
       </div>
 
-      {/* Clima e Mapa */}
-      <div style={sideGridStyle}>
-        <WeatherWidget weather={weather} />
-        <RaceMap locations={locations} drivers={drivers} />
-      </div>
+      {/* Modo Comparação ou Dashboard Normal */}
+      {comparisonMode ? (
+        <DriverComparison 
+          raceData={raceData}
+          sessionKey={selectedSessionKey || session?.session_key}
+          lapsData={allLapsData}
+        />
+      ) : (
+        <>
+          {/* Clima e Mapa */}
+          <div style={sideGridStyle}>
+            <WeatherWidget weather={weather} />
+            <RaceMap locations={locations} drivers={drivers} />
+          </div>
 
-      {/* Tabela de Posições */}
-      <h2 style={sectionTitleStyle}>📊 Classificação ao Vivo</h2>
+          {/* Tabela de Posições */}
+          <h2 style={sectionTitleStyle}>📊 Classificação ao Vivo</h2>
       
       {/* Controle de Visibilidade de Colunas */}
       <div style={{
@@ -972,6 +1053,8 @@ const Dashboard = () => {
         <TeamRadio teamRadio={teamRadio} drivers={drivers} />
         <RaceControl raceControl={raceControl} drivers={drivers} />
       </div>
+        </>
+      )}
     </div>
   );
 };

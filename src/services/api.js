@@ -431,6 +431,19 @@ export const getLaps = async (sessionKey) => {
   }
 };
 
+// Função para obter TODAS as voltas (para comparação detalhada)
+export const getAllLaps = async (sessionKey) => {
+  try {
+    console.log('📊 Buscando todas as voltas para comparação...');
+    const response = await axios.get(`${BASE_URL}/laps?session_key=${sessionKey}`);
+    console.log(`✅ ${response.data.length} voltas carregadas`);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar todas as voltas:', error);
+    return [];
+  }
+};
+
 // Função para obter dados de intervalos (otimizado - apenas últimos registros)
 export const getIntervals = async (sessionKey) => {
   try {
