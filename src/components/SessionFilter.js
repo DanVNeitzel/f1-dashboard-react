@@ -67,7 +67,6 @@ const SessionFilter = ({ onSessionChange, currentSession }) => {
     fontWeight: 'bold',
     cursor: 'pointer',
     transition: 'background-color 0.2s',
-    alignSelf: 'flex-end',
     marginTop: 'auto'
   };
 
@@ -234,15 +233,17 @@ const SessionFilter = ({ onSessionChange, currentSession }) => {
 
         <div style={filterItemStyle}>
           <label style={labelStyle}>&nbsp;</label>
-          <button 
-            style={buttonStyle}
-            onClick={handleApplyFilter}
-            disabled={!selectedSession || loading}
-            onMouseOver={(e) => !loading && (e.target.style.backgroundColor = '#c10500')}
-            onMouseOut={(e) => (e.target.style.backgroundColor = '#e10600')}
-          >
-            {loading ? 'Carregando...' : 'Aplicar Filtro'}
-          </button>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <button 
+              style={buttonStyle}
+              onClick={handleApplyFilter}
+              disabled={!selectedSession || loading}
+              onMouseOver={(e) => !loading && (e.target.style.backgroundColor = '#c10500')}
+              onMouseOut={(e) => (e.target.style.backgroundColor = '#e10600')}
+            >
+              {loading ? 'Carregando...' : 'Aplicar Filtro'}
+            </button>
+          </div>
         </div>
       </div>
 

@@ -44,7 +44,7 @@ const tableScrollStyles = `
 
 const Dashboard = () => {
   const [raceData, setRaceData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(null);
   const [locations, setLocations] = useState([]);
   const [drivers, setDrivers] = useState([]);
@@ -60,6 +60,7 @@ const Dashboard = () => {
   const [forceLoadData, setForceLoadData] = useState(false);
   const [isLoadingForced, setIsLoadingForced] = useState(false);
   const [showApiWarning, setShowApiWarning] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [sortConfig, setSortConfig] = useState({ key: 'leader', direction: 'asc' });
   const [dataReadiness, setDataReadiness] = useState({
     drivers: false,
@@ -88,6 +89,11 @@ const Dashboard = () => {
     try {
       if (forceLoad) {
         setIsLoadingForced(true);
+        setLoading(false); // Garantir que apenas o loading forçado seja exibido
+      } else if (!isInitialLoad) {
+        // Apenas mostrar loading se não for o carregamento inicial
+        setLoading(true);
+        setIsLoadingForced(false);
       }
       
       // Resetar estado de prontidão
@@ -124,10 +130,24 @@ const Dashboard = () => {
         setLastUpdate(new Date().toLocaleTimeString());
       }
       
+      // Aguardar um pouco para garantir que todos os dados sejam processados
+      // antes de remover o loading
+      if (forceLoad) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+      // Marcar que o carregamento inicial foi concluído
+      if (isInitialLoad) {
+        setIsInitialLoad(false);
+      }
+      
       setLoading(false);
       setIsLoadingForced(false);
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
+      if (isInitialLoad) {
+        setIsInitialLoad(false);
+      }
       setLoading(false);
       setIsLoadingForced(false);
     }
@@ -157,8 +177,10 @@ const Dashboard = () => {
     // Se o modo forçado estiver ativo, mostrar loading forçado
     if (forceLoadData) {
       setIsLoadingForced(true);
+      setLoading(false); // Garantir que apenas o loading forçado seja exibido
     } else {
       setLoading(true);
+      setIsLoadingForced(false);
     }
     
     fetchData(sessionKey, forceLoadData);
@@ -170,8 +192,12 @@ const Dashboard = () => {
     
     // Recarregar dados com a nova configuração
     if (newForceLoad) {
-      setLoading(true);
+      setIsLoadingForced(true);
+      setLoading(false); // Garantir que apenas o loading forçado seja exibido
       fetchData(selectedSessionKey, true);
+    } else {
+      // Se desativar, apenas atualizar o estado sem recarregar
+      // O usuário pode clicar em "Aplicar Filtro" novamente se quiser recarregar
     }
   };
 
@@ -612,6 +638,30 @@ const Dashboard = () => {
     marginTop: '10px'
   };
 
+  // Durante o carregamento inicial, não mostrar loading de tela cheia
+  if (isInitialLoad) {
+    return (
+      <div style={containerStyle}>
+        <style>{tableScrollStyles}</style>
+        <div style={headerStyle}>
+          <h1 style={titleStyle}>
+            🏎️ F1 Dashboard Completo - Live Race
+          </h1>
+          <p style={updateStyle}>Carregando dados iniciais...</p>
+        </div>
+        <div style={{
+          textAlign: 'center',
+          padding: '60px 20px',
+          color: '#9ca3af',
+          fontSize: '16px'
+        }}>
+          <div style={{ marginBottom: '20px', fontSize: '48px' }}>⏳</div>
+          <div>Aguarde, carregando informações da última corrida...</div>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return <SkeletonLoader />;
   }
@@ -1050,6 +1100,267 @@ const Dashboard = () => {
             Nenhum dado disponível. Aguarde uma corrida ao vivo ou verifique a API.
           </div>
         )}
+          </div>
+        </div>
+      </div>
+
+      {/* Legenda - Mini Setores e Pneus */}
+      <div style={{
+        backgroundColor: '#15151f',
+        borderRadius: '8px',
+        padding: '20px',
+        marginTop: '15px',
+        border: '2px solid #2a2a3e'
+      }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '20px'
+        }}>
+          {/* Legenda Mini Setores */}
+          <div>
+            <h4 style={{
+              color: '#ffffff',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              marginBottom: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              📊 Mini Setores
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  backgroundColor: '#a855f7',
+                  borderRadius: '4px',
+                  border: '2px solid #a855f7'
+                }}></div>
+                <span style={{ color: '#e5e7eb', fontSize: '13px' }}>
+                  Roxo - Melhor setor da sessão (geral)
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  backgroundColor: '#22c55e',
+                  borderRadius: '4px',
+                  border: '2px solid #22c55e'
+                }}></div>
+                <span style={{ color: '#e5e7eb', fontSize: '13px' }}>
+                  Verde - Melhor setor pessoal do piloto
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  backgroundColor: '#fbbf24',
+                  borderRadius: '4px',
+                  border: '2px solid #fbbf24'
+                }}></div>
+                <span style={{ color: '#e5e7eb', fontSize: '13px' }}>
+                  Amarelo - Setor mais lento que o pessoal
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  backgroundColor: 'transparent',
+                  borderRadius: '4px',
+                  border: '2px solid #4b5563'
+                }}></div>
+                <span style={{ color: '#e5e7eb', fontSize: '13px' }}>
+                  Cinza - Setor normal
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Legenda Tipos de Pneu */}
+          <div>
+            <h4 style={{
+              color: '#ffffff',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              marginBottom: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              🏎️ Tipos de Pneu
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  backgroundColor: '#ef4444',
+                  borderRadius: '50%',
+                  border: '2px solid #ef4444'
+                }}></div>
+                <span style={{ color: '#e5e7eb', fontSize: '13px' }}>
+                  Vermelho - SOFT (Macio)
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  backgroundColor: '#fbbf24',
+                  borderRadius: '50%',
+                  border: '2px solid #fbbf24'
+                }}></div>
+                <span style={{ color: '#e5e7eb', fontSize: '13px' }}>
+                  Amarelo - MEDIUM (Médio)
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  backgroundColor: '#e5e7eb',
+                  borderRadius: '50%',
+                  border: '2px solid #e5e7eb'
+                }}></div>
+                <span style={{ color: '#e5e7eb', fontSize: '13px' }}>
+                  Branco - HARD (Duro)
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  backgroundColor: '#22c55e',
+                  borderRadius: '50%',
+                  border: '2px solid #22c55e'
+                }}></div>
+                <span style={{ color: '#e5e7eb', fontSize: '13px' }}>
+                  Verde - INTERMEDIATE (Chuva leve)
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  backgroundColor: '#3b82f6',
+                  borderRadius: '50%',
+                  border: '2px solid #3b82f6'
+                }}></div>
+                <span style={{ color: '#e5e7eb', fontSize: '13px' }}>
+                  Azul - WET (Chuva pesada)
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Legenda Status dos Pilotos */}
+          <div>
+            <h4 style={{
+              color: '#ffffff',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              marginBottom: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              🏁 Status da Corrida
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '32px',
+                  height: '20px',
+                  backgroundColor: '#374151',
+                  borderRadius: '4px',
+                  border: '2px solid #4b5563',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  color: '#ffffff'
+                }}>1-20</div>
+                <span style={{ color: '#e5e7eb', fontSize: '13px' }}>
+                  Posição numérica - Piloto classificado
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '32px',
+                  height: '20px',
+                  backgroundColor: '#374151',
+                  borderRadius: '4px',
+                  border: '2px solid #fbbf24',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  color: '#fbbf24'
+                }}>NC</div>
+                <span style={{ color: '#e5e7eb', fontSize: '13px' }}>
+                  Not Classified - Não classificado (DNF)
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '32px',
+                  height: '20px',
+                  backgroundColor: '#374151',
+                  borderRadius: '4px',
+                  border: '2px solid #ef4444',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  color: '#ef4444'
+                }}>DQ</div>
+                <span style={{ color: '#e5e7eb', fontSize: '13px' }}>
+                  Disqualified - Desqualificado
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '32px',
+                  height: '20px',
+                  backgroundColor: '#374151',
+                  borderRadius: '4px',
+                  border: '2px solid #fbbf24',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '9px',
+                  fontWeight: 'bold',
+                  color: '#fbbf24'
+                }}>DNF</div>
+                <span style={{ color: '#e5e7eb', fontSize: '13px' }}>
+                  Did Not Finish - Não completou a corrida
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '32px',
+                  height: '20px',
+                  backgroundColor: '#374151',
+                  borderRadius: '4px',
+                  border: '2px solid #ef4444',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '9px',
+                  fontWeight: 'bold',
+                  color: '#ef4444'
+                }}>DSQ</div>
+                <span style={{ color: '#e5e7eb', fontSize: '13px' }}>
+                  Disqualified - Desqualificado (mesma sigla)
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
