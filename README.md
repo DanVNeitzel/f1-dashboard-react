@@ -2,6 +2,8 @@
 
 Dashboard completo e em tempo real da Fórmula 1, consumindo TODOS os dados disponíveis na API OpenF1.
 
+🚀 **[Acesse o Dashboard ao Vivo](https://danvneitzel.github.io/f1-dashboard-react/)**
+
 ![F1 Dashboard](https://img.shields.io/badge/F1-Dashboard-red?style=for-the-badge&logo=formula1)
 *![React](https://img.shields.io/badge/React-18.3.1-blue?style=for-the-badge&logo=react)*
 ![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178C6?style=for-the-badge&logo=typescript)
