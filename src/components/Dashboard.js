@@ -153,7 +153,14 @@ const Dashboard = () => {
 
   const handleSessionChange = (sessionKey, sessionInfo) => {
     setSelectedSessionKey(sessionKey);
-    setLoading(true);
+    
+    // Se o modo forçado estiver ativo, mostrar loading forçado
+    if (forceLoadData) {
+      setIsLoadingForced(true);
+    } else {
+      setLoading(true);
+    }
+    
     fetchData(sessionKey, forceLoadData);
   };
 

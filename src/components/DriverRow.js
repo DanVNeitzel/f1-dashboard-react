@@ -105,20 +105,23 @@ const DriverRow = ({
     width: '90px',
     color: '#a855f7',
     fontWeight: '600',
-    fontSize: '12px'
+    fontSize: '12px',
+    textAlign: 'center'
   };
 
   const intervalStyle = {
     width: '90px',
     color: '#22c55e',
-    fontSize: '12px'
+    fontSize: '12px',
+    textAlign: 'center'
   };
 
   const lastLapStyle = {
     width: '90px',
     color: '#fbbf24',
     fontWeight: '600',
-    fontSize: '12px'
+    fontSize: '12px',
+    textAlign: 'center'
   };
 
   const sectorsStyle = {
@@ -132,7 +135,8 @@ const DriverRow = ({
   const lastSectorStyle = {
     width: '90px',
     color: '#34d399',
-    fontSize: '12px'
+    fontSize: '12px',
+    textAlign: 'center'
   };
 
   const pitStyle = {
@@ -146,7 +150,8 @@ const DriverRow = ({
   const topSpeedStyle = {
     width: '70px',
     color: '#06b6d4',
-    fontSize: '12px'
+    fontSize: '12px',
+    textAlign: 'center'
   };
 
   return (
