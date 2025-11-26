@@ -9,6 +9,7 @@ import NoSessionModal from './NoSessionModal';
 import SessionFilter from './SessionFilter';
 import SkeletonLoader from './SkeletonLoader';
 import DriverComparison from './DriverComparison';
+import BlockVisibilityMenu from './BlockVisibilityMenu';
 import { getFullRaceData, checkActiveSession, getUpcomingSessions, getAllLaps } from '../services/api';
 
 // Estilos globais para scroll da tabela
@@ -84,6 +85,14 @@ const Dashboard = () => {
   });
   const [comparisonMode, setComparisonMode] = useState(false);
   const [allLapsData, setAllLapsData] = useState([]);
+  const [visibleBlocks, setVisibleBlocks] = useState({
+    sessionInfo: true,
+    weatherMap: true,
+    driverTable: true,
+    columnControls: true,
+    legend: true,
+    communications: true
+  });
 
   const fetchData = async (sessionKey = null, forceLoad = false) => {
     try {
@@ -525,6 +534,13 @@ const Dashboard = () => {
     }));
   };
 
+  const toggleBlock = (block) => {
+    setVisibleBlocks(prev => ({
+      ...prev,
+      [block]: !prev[block]
+    }));
+  };
+
   const containerStyle = {
     padding: '20px',
     maxWidth: '1800px',
@@ -533,17 +549,6 @@ const Dashboard = () => {
     '@media (max-width: 768px)': {
       padding: '10px'
     }
-  };
-
-  const loadingContainerStyle = {
-    maxWidth: '1800px',
-    margin: '0 auto',
-    backgroundColor: '#0d0d15',
-    textAlign: 'center',
-    paddingTop: '100px',
-    paddingBottom: '100px',
-    paddingLeft: '20px',
-    paddingRight: '20px'
   };
 
   const headerStyle = {
@@ -683,6 +688,12 @@ const Dashboard = () => {
           onClose={() => setShowNoSessionModal(false)}
         />
       )}
+
+      {/* Menu de Visibilidade dos Blocos */}
+      <BlockVisibilityMenu 
+        visibleBlocks={visibleBlocks}
+        onToggleBlock={toggleBlock}
+      />
 
       <div style={headerStyle}>
         <h1 style={titleStyle}>
@@ -934,9 +945,11 @@ const Dashboard = () => {
       </div>
 
       {/* Informações da Sessão */}
-      <div style={mainGridStyle}>
-        <RaceInfo session={session} />
-      </div>
+      {visibleBlocks.sessionInfo && (
+        <div style={mainGridStyle}>
+          <RaceInfo session={session} />
+        </div>
+      )}
 
       {/* Modo Comparação ou Dashboard Normal */}
       {comparisonMode ? (
@@ -948,16 +961,21 @@ const Dashboard = () => {
       ) : (
         <>
           {/* Clima e Mapa */}
-          <div style={sideGridStyle}>
-            <WeatherWidget weather={weather} />
-            <RaceMap locations={locations} drivers={drivers} />
-          </div>
+          {visibleBlocks.weatherMap && (
+            <div style={sideGridStyle}>
+              <WeatherWidget weather={weather} />
+              <RaceMap locations={locations} drivers={drivers} />
+            </div>
+          )}
 
           {/* Tabela de Posições */}
-          <h2 style={sectionTitleStyle}>📊 Classificação ao Vivo</h2>
+          {visibleBlocks.driverTable && (
+            <>
+              <h2 style={sectionTitleStyle}>📊 Classificação ao Vivo</h2>
       
-      {/* Controle de Visibilidade de Colunas */}
-      <div style={{
+              {/* Controle de Visibilidade de Colunas */}
+              {visibleBlocks.columnControls && (
+                <div style={{
         backgroundColor: '#15151f',
         padding: '15px 20px',
         borderRadius: '8px 8px 0 0',
@@ -1003,6 +1021,7 @@ const Dashboard = () => {
           ))}
         </div>
       </div>
+              )}
 
       <div style={tableStyle}>
         <div className="table-scroll-container" style={tableScrollContainerStyle}>
@@ -1104,8 +1123,9 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Legenda - Mini Setores e Pneus */}
-      <div style={{
+              {/* Legenda - Mini Setores e Pneus */}
+              {visibleBlocks.legend && (
+                <div style={{
         backgroundColor: '#15151f',
         borderRadius: '8px',
         padding: '20px',
@@ -1364,13 +1384,20 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+              )}
+            </>
+          )}
 
       {/* Rádio e Controle da Corrida */}
-      <h2 style={sectionTitleStyle}>📡 Comunicações e Eventos</h2>
-      <div style={eventGridStyle}>
-        <TeamRadio teamRadio={teamRadio} drivers={drivers} />
-        <RaceControl raceControl={raceControl} drivers={drivers} />
-      </div>
+      {visibleBlocks.communications && (
+        <>
+          <h2 style={sectionTitleStyle}>📡 Comunicações e Eventos</h2>
+          <div style={eventGridStyle}>
+            <TeamRadio teamRadio={teamRadio} drivers={drivers} />
+            <RaceControl raceControl={raceControl} drivers={drivers} />
+          </div>
+        </>
+      )}
         </>
       )}
     </div>
