@@ -31,6 +31,29 @@ Dashboard completo e em tempo real da Fórmula 1, consumindo TODOS os dados disp
 - **Número de pit stops** realizados
 - **Velocidade máxima** (Top Speed)
 - **Tempo do último setor**
+- **Controle de visibilidade de colunas** - mostre/oculte colunas específicas
+- **Ordenação personalizável** - clique nos cabeçalhos para ordenar por qualquer coluna
+
+### 👁️ Menu de Visibilidade de Blocos
+- **Menu sticky no topo** que permanece visível ao rolar a página
+- **Controle individual** de cada seção do dashboard:
+  - 📍 Informações da Sessão
+  - 🌤️ Clima e Mapa
+  - 📊 Tabela de Pilotos
+  - ⚙️ Controle de Colunas
+  - 📖 Legenda
+  - 📡 Comunicações e Eventos
+- **Ações rápidas**: Mostrar/Ocultar todos os blocos de uma vez
+- **Contador visual** mostrando quantos blocos estão visíveis
+- **Interface expansível** - clique para abrir/fechar o painel
+
+### ⚔️ Modo Comparação de Pilotos
+- **Compare dois pilotos lado a lado** com estatísticas detalhadas
+- **Gráfico de tempos de volta** comparativo
+- **Análise de setores** individuais
+- **Estatísticas completas**: melhor volta, média de voltas, velocidade máxima
+- **Histórico de pit stops** de ambos os pilotos
+- **Seleção fácil** de pilotos com dropdown organizado por equipe
 
 ### 🗺️ Mapa da Corrida em Tempo Real
 - Visualização das **posições GPS** de todos os carros no circuito
@@ -51,6 +74,9 @@ Dashboard completo e em tempo real da Fórmula 1, consumindo TODOS os dados disp
 - Nome do circuito e localização
 - Data e horário de início
 - GMT offset
+- **Filtro de sessões** - visualize dados de corridas anteriores
+- **Modo forçado** - carregamento completo de dados históricos (até 30s)
+- **Indicador de status** - mostra quais dados foram carregados com sucesso
 
 ### 📻 Rádio da Equipe
 - Comunicações de rádio entre pilotos e equipes
@@ -159,14 +185,22 @@ f1-dashboard-react/
 │   └── favicon.ico
 ├── src/
 │   ├── components/
-│   │   ├── Dashboard.js       # Componente principal
-│   │   ├── DriverRow.js       # Linha de cada piloto
-│   │   ├── MiniSector.js      # Mini setores coloridos
-│   │   ├── RaceMap.js         # Mapa da corrida
-│   │   ├── RaceInfo.js        # Info da sessão
-│   │   ├── WeatherWidget.js   # Widget de clima
-│   │   ├── TeamRadio.js       # Rádio da equipe
-│   │   └── RaceControl.js     # Controle da corrida
+│   │   ├── Dashboard.js           # Componente principal
+│   │   ├── DriverRow.js           # Linha de cada piloto
+│   │   ├── MiniSector.js          # Mini setores coloridos
+│   │   ├── RaceMap.js             # Mapa da corrida
+│   │   ├── RaceInfo.js            # Info da sessão
+│   │   ├── WeatherWidget.js       # Widget de clima
+│   │   ├── TeamRadio.js           # Rádio da equipe
+│   │   ├── RaceControl.js         # Controle da corrida
+│   │   ├── BlockVisibilityMenu.js # Menu de visibilidade
+│   │   ├── DriverComparison.js    # Comparação de pilotos
+│   │   ├── DriverSelector.js      # Seletor de pilotos
+│   │   ├── ComparisonStats.js     # Estatísticas comparativas
+│   │   ├── LapTimeChart.js        # Gráfico de tempos
+│   │   ├── SessionFilter.js       # Filtro de sessões
+│   │   ├── SkeletonLoader.js      # Loading animado
+│   │   └── NoSessionModal.js      # Modal de sessão inativa
 │   ├── services/
 │   │   ├── api.js             # Chamadas para OpenF1 API
 │   │   └── cache.js           # Sistema de cache
@@ -221,10 +255,14 @@ O dashboard atualiza automaticamente:
 
 ## 💡 Dicas de Uso
 
-1. **Para testar com dados reais**: Use sessões de corridas passadas alterando o ano em `api.js`
-2. **Para filtrar pilotos**: Use o filtro no componente de Rádio da Equipe
-3. **Para ver detalhes**: Hover sobre elementos para informações adicionais
-4. **Para melhor experiência**: Use tela grande ou modo paisagem em dispositivos móveis
+1. **Para visualizar corridas anteriores**: Use o filtro de sessões no topo do dashboard
+2. **Para carregar dados completos**: Ative o "Modo Forçado" (pode levar até 30 segundos)
+3. **Para comparar pilotos**: Clique no botão "⚔️ Comparar Pilotos" e selecione dois pilotos
+4. **Para personalizar a visualização**: Use o menu "👁️ Visibilidade dos Blocos" no topo
+5. **Para ocultar colunas**: Use os botões de controle acima da tabela de classificação
+6. **Para ordenar dados**: Clique nos cabeçalhos das colunas (posição, piloto, melhor volta, etc.)
+7. **Para ver detalhes**: Hover sobre elementos para informações adicionais
+8. **Para melhor experiência**: Use tela grande ou modo paisagem em dispositivos móveis
 
 ## 🐛 Troubleshooting
 
@@ -252,8 +290,13 @@ O dashboard atualiza automaticamente:
 
 ## 🚧 Roadmap
 
+- [x] ✅ Implementar modo comparação de pilotos
+- [x] ✅ Menu de visibilidade de blocos
+- [x] ✅ Controle de visibilidade de colunas
+- [x] ✅ Ordenação de colunas na tabela
+- [x] ✅ Filtro de sessões históricas
+- [x] ✅ Modo forçado para dados completos
 - [ ] Adicionar suporte a WebSocket para dados instantâneos
-- [ ] Implementar modo comparação de pilotos
 - [ ] Adicionar gráficos de telemetria avançada
 - [ ] Sistema de notificações para eventos importantes
 - [ ] Modo PWA (Progressive Web App)
@@ -262,6 +305,8 @@ O dashboard atualiza automaticamente:
 - [ ] Integração com outros APIs de F1
 - [ ] Dashboard personalizável (drag & drop)
 - [ ] Análise de estratégia de corrida com IA
+- [ ] Exportação de dados em CSV/JSON
+- [ ] Modo teatro (tela cheia sem distrações)
 
 ## 🤝 Contribuindo
 
